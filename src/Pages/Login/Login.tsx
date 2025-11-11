@@ -24,7 +24,7 @@ export function Login() {
             <Card.Title className="d-flex align-items-center justify-content-center">
               <Image src={logoSgv} fluid />
             </Card.Title>
-            <Card.Body className="mt-5" color="#000">
+            <Card.Body className="mt-5">
               <h4 className="mb-4">Acesse sua conta</h4>
               <Form>
                 <Row className="mb-4">
@@ -35,11 +35,11 @@ export function Login() {
                 </Row>
                 <Row className="mb-3">
                   <Col>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>Senha</FormLabel>
                     <FormControl type="password" placeholder="...." />
                   </Col>
                 </Row>
-                <a href="/">Esqueceu a senha?</a>
+                <a href="/EmailAccessRecover">Esqueceu a senha?</a>
                 <Row>
                   <Col md={10} className="d-flex justify-content-end">
                     <Button className="px-5" as="input" type="submit" value={"Entrar"} />
