@@ -1,0 +1,153 @@
+/* src/components/Sidebar.css */
+
+.sp-sidebar {
+  width: 240px;
+  background-color: #ffffff;
+  border-right: 1px solid #e0e0e0;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  box-sizing: border-box; /* Garante que o padding não aumente a largura */
+}
+
+.sp-sidebar-logo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0052cc;
+  margin-bottom: 32px;
+}
+
+.sp-sidebar-nav {
+  list-style: none; /* Remove bolinhas da lista padrão do Bootstrap */
+  padding: 0;
+  margin: 0;
+}
+
+.sp-sidebar-nav li {
+  margin-bottom: 8px;
+}
+
+/* Estilizando o link (<a>) */
+.sp-sidebar-nav li a {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  text-decoration: none; /* Remove sublinhado do link (Bootstrap) */
+  color: #333; /* Sobrescreve a cor azul padrão de links do Bootstrap */
+  border-radius: 6px;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.sp-sidebar-nav li a svg {
+  margin-right: 12px;
+  font-size: 1.2rem;
+}
+
+/* Estado Hover */
+.sp-sidebar-nav li a:hover {
+  background-color: #f4f7fa;
+  text-decoration: none; /* Garante que não apareça sublinhado no hover */
+  color: #333;
+}
+
+/* Estado Ativo (quando a rota coincide) */
+/* O NavLink adiciona a classe "active" no próprio elemento <a> */
+.sp-sidebar-nav li a.active {
+  background-color: #e6f0ff; /* Fundo azul claro */
+  color: #0052cc; /* Texto azul */
+  font-weight: 600;
+}
+
+/* src/components/sidebar/Sidebar.css */
+
+.sp-sidebar {
+  width: 240px;
+  background-color: #ffffff;
+  border-right: 1px solid #e0e0e0;
+  padding: 24px;
+  display: flex;
+  flex-direction: column; /* Garante organização vertical */
+  flex-shrink: 0;
+  box-sizing: border-box;
+  height: 100vh; /* Importante: Ocupar a altura total da tela */
+  position: sticky; /* Opcional: Se quiser que ela fique fixa ao rolar */
+  top: 0;
+}
+
+.sp-sidebar-logo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0052cc;
+  margin-bottom: 32px;
+}
+
+.sp-sidebar-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Estilizando o link (<a>) */
+.sp-sidebar-nav li a {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  text-decoration: none;
+  color: #333;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.sp-sidebar-nav li a svg {
+  margin-right: 12px;
+  font-size: 1.2rem;
+}
+
+.sp-sidebar-nav li a:hover {
+  background-color: #f4f7fa;
+  color: #333;
+}
+
+.sp-sidebar-nav li a.active {
+  background-color: #e6f0ff;
+  color: #0052cc;
+  font-weight: 600;
+}
+
+/* --- LOGOUT (NOVA PARTE) --- */
+.sp-sidebar-logout {
+  margin-top: auto; /* A mágica: Empurra este botão para o fundo */
+  border-top: 1px solid #eee;
+  padding-top: 16px;
+}
+
+.sp-logout-btn {
+  width: 100%;
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  color: #d93025; /* Vermelho para indicar saída */
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.sp-logout-btn svg {
+  margin-right: 12px;
+  font-size: 1.2rem;
+}
+
+.sp-logout-btn:hover {
+  background-color: #fff1f0; /* Fundo vermelho bem clarinho */
+}
