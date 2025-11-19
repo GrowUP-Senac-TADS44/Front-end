@@ -1,0 +1,128 @@
+/* src/pages/PacienteHistorico/PacienteHistorico.css */
+
+/* --- Header do Paciente --- */
+.patient-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.patient-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.patient-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e0e0e0;
+}
+
+.patient-details h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+}
+
+.patient-details span {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* --- Abas de Navegação (Tabs) --- */
+.patient-tabs {
+  display: flex;
+  gap: 32px;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 2rem;
+}
+
+.tab-item {
+  padding-bottom: 12px;
+  font-weight: 500;
+  color: #333;
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+  font-size: 1rem;
+}
+
+.tab-item:hover {
+  color: #0052cc;
+}
+
+.tab-item.active {
+  color: #0052cc;
+  font-weight: 600;
+}
+
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: #0052cc;
+  border-radius: 3px 3px 0 0;
+}
+
+/* --- Tabela --- */
+.history-table-container {
+  background: transparent; /* Fundo transparente conforme a imagem */
+}
+
+.history-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #222;
+}
+
+.table-custom th {
+  font-weight: 500;
+  color: #555;
+  border-bottom: 1px solid #ddd !important;
+  padding: 12px;
+}
+
+.table-custom td {
+  vertical-align: middle;
+  padding: 16px 12px;
+  color: #444;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.professional-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pro-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Link na tabela */
+.link-laudo {
+  color: #0052cc;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Link de voltar (Breadcrumb simples) */
+.back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: #0052cc;
+  text-decoration: underline;
+  font-size: 0.9rem;
+}
