@@ -1,7 +1,7 @@
 // src/components/MainLayout.tsx
 import React from 'react';
 import { Outlet } from 'react-router-dom'; 
-import { Sidebar } from '../../components/sidebar/sidebar';
+import { Sidebar } from '../../components/sidebar/Sidebar';
 import './MainLayout.css'; 
 
 export function MainLayout(): JSX.Element {
