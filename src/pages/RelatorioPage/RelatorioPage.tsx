@@ -21,8 +21,16 @@ function RelatorioPage(): JSX.Element {
 
       {/* --- Aviso --- */}
       <div className="warning-box">
-        <FiAlertTriangle size={20} />
-        <span>Ferramenta de apoio. Não substitui avaliação clínica.</span>
+        <FiAlertTriangle size={24} />
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          <span style={{ fontWeight: 600 }}>
+            Ferramenta de apoio. Não substitui avaliação clínica.
+          </span>
+          <span style={{ color: '#C99719D1', fontSize: '0.6rem', lineHeight: '1.2', marginLeft: '10px' }}>
+            As informações geradas por IA devem ser revisadas e validadas por um profissional qualificado.
+          </span>
+        </div>
       </div>
 
       {/* --- Resumo Executivo --- */}
@@ -31,13 +39,16 @@ function RelatorioPage(): JSX.Element {
         <div className="summary-cards">
           {/* Cards renomeados para sp-card */}
           <div className="sp-card">
-            <p>Triagem Positiva</p>
+           <h1 style={{fontSize: '.8rem', opacity: 0.50}}> ASRS-18 </h1>
+            <p style={{marginLeft: '10px'}}>Triagem Positiva</p>
           </div>
           <div className="sp-card">
-            <p>Sintomas Moderados</p>
+            <h1 style={{fontSize: '.8rem', opacity: 0.50}}> PHQ-9 </h1>
+             <p style={{marginLeft: '10px'}}>Sintomas Moderados</p>
           </div>
           <div className="sp-card card-identified">
-            <p>1 Identificado</p>
+            <h1 style={{fontSize: '.8rem', opacity: 0.50}}> Itens Críticos </h1>
+             <p style={{marginLeft: '10px'}}>1 Identificado</p>
           </div>
         </div>
       </section>

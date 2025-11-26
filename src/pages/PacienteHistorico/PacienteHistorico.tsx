@@ -39,7 +39,7 @@ export default function PatientHistory() {
         
         <div>
           <Button variant="primary" className="d-flex align-items-center gap-2">
-            <div className="rounded-circle border border-white p-0 d-flex align-items-center justify-content-center" style={{width: 20, height: 20}}>
+            <div className="border-white p-0 d-flex align-items-center justify-content-center" style={{width: 20, height: 20}}>
                 <Plus size={20} />
             </div>
             Novo teste

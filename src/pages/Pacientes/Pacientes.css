@@ -47,6 +47,18 @@
 .pacientes-table {
   margin-bottom: 0;
 }
+.pacientes-table th:first-child {
+  width: 20%; /*nome*/
+}
+.pacientes-table th:nth-child(2) { width: 20%; } /* CPF */
+.pacientes-table th:nth-child(3) { width: 20%; } /* Telefone */
+.pacientes-table th:nth-child(4) { width: 10%; } /* Data */
+.pacientes-table th:last-child { width: 10%; }   /* Ações */
+
+.table-avatar {
+  margin-left: 10px; 
+}
+
 
 .pacientes-table th {
   background-color: #fff;
@@ -78,6 +90,7 @@
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
+  
 }
 
 .patient-name {
