@@ -1,30 +1,58 @@
-// src/pages/PacienteHistorico/PacienteHistorico.tsx
-
-import React, { useState } from 'react';
-import { Container, Button, Table, Form } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Container, Button, Table, Form, Spinner, Alert } from 'react-bootstrap';
+import { Link, useParams } from 'react-router-dom';
 import { FaPlus as Plus } from "react-icons/fa";
 import './PacienteHistorico.css';
 
 import { PatientEvolutions } from './PatientEvolutions';
 import { PatientDocuments } from './PatientDocuments';
-
-// Dados Mockados da Maria
-const mockTestsData = [
-  { id: 1, date: '15/02/2022', type: 'Hemograma completo', doctor: 'Dr. Ana Souza', avatar: 'https://randomuser.me/api/portraits/women/44.jpg', link: '#' },
-  { id: 2, date: '15/06/2024', type: 'Tomografia computadorizada', doctor: 'Dr. Lúcia Martins', avatar: 'https://randomuser.me/api/portraits/women/68.jpg', link: '#' },
-  { id: 3, date: '15/02/2022', type: 'Hemograma completo', doctor: 'Dr. Ana Souza', avatar: 'https://randomuser.me/api/portraits/women/44.jpg', link: '#' },
-  { id: 4, date: '15/06/2024', type: 'Tomografia computadorizada', doctor: 'Dr. Lúcia Martins', avatar: 'https://randomuser.me/api/portraits/women/68.jpg', link: '#' },
-];
+import { pacienteService, type Paciente } from '../../services/pacienteService';
+import { testeService, type TesteAplicado } from '../../services/testeService'; // Importe o serviço novo
 
 export default function PatientHistory() {
-  //   aba 'evolucoes' 
+  const { id } = useParams();
   const [activeTab, setActiveTab] = useState('evolucoes');
+  
+  // Estados para dados REAIS
+  const [paciente, setPaciente] = useState<Paciente | null>(null);
+  const [testes, setTestes] = useState<TesteAplicado[]>([]); // Lista de testes vazia
+  
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  // Busca dados ao carregar
+  useEffect(() => {
+    if (id) {
+      loadData(Number(id));
+    }
+  }, [id]);
+
+  const loadData = async (pacienteId: number) => {
+    try {
+      setLoading(true);
+      // 1. Busca os dados do Paciente
+      const pacienteData = await pacienteService.getById(pacienteId);
+      setPaciente(pacienteData);
+
+      // 2. Busca TODOS os testes e filtra apenas os deste paciente
+      // (Isso é necessário porque seu backend não tem rota de filtro ainda)
+      const todosTestes = await testeService.getAll();
+      const testesDoPaciente = todosTestes.filter(t => t.PacienteID === pacienteId);
+      
+      setTestes(testesDoPaciente);
+
+    } catch (error) {
+      console.error("Erro ao buscar dados", error);
+      setError('Erro ao carregar dados do paciente.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const renderTestesContent = () => (
     <div className="history-table-container">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h3 className="history-title mb-0">Histórico de teste aplicados</h3>
+        <h3 className="history-title mb-0">Histórico de testes aplicados</h3>
         <Button variant="primary" className="d-flex align-items-center gap-2">
             <div className="border-white p-0 d-flex align-items-center justify-content-center" style={{width: 20, height: 20}}>
                 <Plus size={12} />
@@ -39,29 +67,64 @@ export default function PatientHistory() {
             <th style={{width: '50px'}}><Form.Check type="checkbox" /></th>
             <th>Data</th>
             <th>Tipo de teste</th>
-            <th>Profissional responsável</th>
-            <th>Resultado | Laudo</th>
+            <th>ID Médico</th> {/* Backend atual não manda nome do médico, só ID */}
+            <th>Resultado</th>
           </tr>
         </thead>
         <tbody>
-          {mockTestsData.map((item, index) => (
-            <tr key={`${item.id}-${index}`}>
-              <td><Form.Check type="checkbox" /></td>
-              <td>{item.date}</td>
-              <td>{item.type}</td>
-              <td>
-                <div className="professional-cell">
-                  <img src={item.avatar} alt={item.doctor} className="pro-avatar" />
-                  {item.doctor}
-                </div>
-              </td>
-              <td><a href={item.link} className="link-laudo">Link</a></td>
-            </tr>
-          ))}
+          {testes.length === 0 ? (
+             <tr><td colSpan={5} className="text-center text-muted">Nenhum teste encontrado para este paciente.</td></tr>
+          ) : (
+            testes.map((item) => (
+              <tr key={item.TesteID}>
+                <td><Form.Check type="checkbox" /></td>
+                <td>
+                    {/* Formata a data se ela existir */}
+                    {item.DataHora ? new Date(item.DataHora).toLocaleDateString('pt-BR') : '-'}
+                </td>
+                <td>{item.TipoTeste || 'Teste Padrão'}</td>
+                <td>
+                  <div className="professional-cell">
+                    {/* Placeholder para imagem, já que o back não manda avatar */}
+                    <div className="bg-secondary rounded-circle text-white d-flex align-items-center justify-content-center" style={{width:32, height:32, fontSize: 12}}>
+                        Dr
+                    </div>
+                    {/* Mostramos o ID pois não temos o nome do médico via include no back */}
+                    <span>Médico ID: {item.MedicoID}</span>
+                  </div>
+                </td>
+                <td>
+                    {item.Resultado ? (
+                        <span className="text-dark">{item.Resultado}</span>
+                    ) : (
+                        <span className="text-muted font-italic">Sem resultado</span>
+                    )}
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </Table>
     </div>
   );
+
+  if (loading) {
+    return (
+      <Container className="d-flex justify-content-center align-items-center vh-100">
+        <Spinner animation="border" variant="primary" />
+        <span className="ms-3">Carregando dados...</span>
+      </Container>
+    );
+  }
+
+  if (error || !paciente) {
+    return (
+      <Container className="p-5 text-center">
+        <Alert variant="danger">{error || 'Paciente não encontrado.'}</Alert>
+        <Link to="/pacientes" className="btn btn-secondary">Voltar para lista</Link>
+      </Container>
+    );
+  }
 
   return (
     <Container fluid className="p-4">
@@ -69,64 +132,43 @@ export default function PatientHistory() {
         Pacientes
       </Link>
 
-      {/* --- HEADER DO PACIENTE: MARIA SOUZA --- */}
       <div className="patient-header">
         <div className="patient-info">
           <img 
-            src="https://randomuser.me/api/portraits/women/65.jpg" // Foto feminina
-            alt="Maria Souza" 
+            src={`https://ui-avatars.com/api/?name=${paciente.NomeCompleto}&background=random&size=128`}
+            alt={paciente.NomeCompleto} 
             className="patient-avatar" 
           />
           <div className="patient-details">
-            <h2 className="fw-bold">Maria Souza</h2>
+            <h2 className="fw-bold">{paciente.NomeCompleto}</h2>
             <div className="text-secondary">
-                <span>Paciente</span> <br/>
-                {/* ID fictício  */}
-                <span>Paciente ID: 987654321</span> 
+                <span>{paciente.Email || 'Sem email'}</span> <br/>
+                <span>CPF: {paciente.CPF || 'N/A'}</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* --- NAVEGAÇÃO DAS ABAS --- */}
       <div className="patient-tabs">
-        <div 
-          className={`tab-item ${activeTab === 'evolucoes' ? 'active' : ''}`}
-          onClick={() => setActiveTab('evolucoes')}
-        >
-          Evoluções
-        </div>
-        
-        <div 
-          className={`tab-item ${activeTab === 'testes' ? 'active' : ''}`}
-          onClick={() => setActiveTab('testes')}
-        >
-          Testes e Laudos
-        </div>
-        
-        <div 
-          className={`tab-item ${activeTab === 'documentos' ? 'active' : ''}`}
-          onClick={() => setActiveTab('documentos')}
-        >
-          Documentos
-        </div>
-        
-        <div 
-          className={`tab-item ${activeTab === 'dados' ? 'active' : ''}`}
-          onClick={() => setActiveTab('dados')}
-        >
-          Dados Cadastrais
-        </div>
+        <div className={`tab-item ${activeTab === 'evolucoes' ? 'active' : ''}`} onClick={() => setActiveTab('evolucoes')}>Evoluções</div>
+        <div className={`tab-item ${activeTab === 'testes' ? 'active' : ''}`} onClick={() => setActiveTab('testes')}>Testes e Laudos</div>
+        <div className={`tab-item ${activeTab === 'documentos' ? 'active' : ''}`} onClick={() => setActiveTab('documentos')}>Documentos</div>
+        <div className={`tab-item ${activeTab === 'dados' ? 'active' : ''}`} onClick={() => setActiveTab('dados')}>Dados Cadastrais</div>
       </div>
 
-      {/* --- CONTEÚDO DINÂMICO --- */}
       <div className="mt-4">
-        {activeTab === 'evolucoes' && <PatientEvolutions />}
+        {activeTab === 'evolucoes' && <PatientEvolutions />} 
         {activeTab === 'testes' && renderTestesContent()}
         {activeTab === 'documentos' && <PatientDocuments />}
-        {activeTab === 'dados' && <div className="p-4 text-muted bg-white rounded shadow-sm">Dados cadastrais em construção...</div>}
+        {activeTab === 'dados' && (
+            <div className="p-4 bg-white rounded shadow-sm">
+                <h5>Dados Cadastrais</h5>
+                <p><strong>Nome:</strong> {paciente.NomeCompleto}</p>
+                <p><strong>Telefone:</strong> {paciente.Telefone}</p>
+                <p><strong>Endereço:</strong> {paciente.Endereco}</p>
+            </div>
+        )}
       </div>
-
     </Container>
   );
 }

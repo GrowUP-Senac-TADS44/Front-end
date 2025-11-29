@@ -1,5 +1,4 @@
 // src/App.tsx
-import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 // --- ÁREA PÚBLICA ---
@@ -28,8 +27,8 @@ export function App() {
         <Route path="/relatorios" element={<RelatorioPage />} />
         
         {/* Nova Rota de Histórico de Pacientes */}
-        <Route path="/pacientes/historico" element={<PatientHistory />} />
-        <Route path="/pacientes" element={<Pacientes />} />        
+        <Route path="/pacientes/:id" element={<PatientHistory />} />
+        <Route path="/pacientes" element={<Pacientes />} />      
         <Route path="/dashboard" element={<div style={{padding: 20}}>Dashboard (Em construção)</div>} />
       </Route>
     </Routes>

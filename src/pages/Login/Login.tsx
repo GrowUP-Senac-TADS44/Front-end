@@ -1,18 +1,40 @@
 // src/pages/Login/Login.tsx
-import React from 'react';
-import { Button, Card, Col, Container, Form, FormControl, FormLabel, Image, Row } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom"; // Importamos Link e useNavigate
+import React, { useState } from 'react'; // Adicionado useState
+import { Button, Card, Col, Container, Form, FormControl, FormLabel, Image, Row, Alert, Spinner } from "react-bootstrap";
+import { Link, useNavigate } from "react-router-dom";
 import logoSgv from "../../assets/logo.svg";
+import { authService } from '../../services/authService'; // Importar o serviço
 import "./Login.css";
 
 export function Login() {
   const navigate = useNavigate();
+  
+  // 1. Estados para capturar os dados dos inputs
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  
+  // Estados para feedback visual
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Aqui você adicionará a lógica real de autenticação no futuro.
-    // Por enquanto, redirecionamos direto para o sistema:
-    navigate("/relatorios");
+    setError(''); // Limpa erros anteriores
+    setLoading(true);
+
+    try {
+      // 2. Chamada real ao backend
+      await authService.login(email, senha);
+      
+      // Se deu certo, vai para a próxima tela
+      navigate("/relatorios");
+    } catch (err: any) {
+      // Se der erro, mostra mensagem
+      const msg = err.response?.data?.error || 'Falha ao realizar login. Verifique suas credenciais.';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -25,27 +47,48 @@ export function Login() {
             </Card.Title>
             <Card.Body className="mt-5">
               <h4 className="mb-4">Acesse sua conta</h4>
-              {/* Adicionamos o onSubmit */}
+              
+              {/* Exibe erro se houver */}
+              {error && <Alert variant="danger">{error}</Alert>}
+
               <Form onSubmit={handleLogin}>
                 <Row className="mb-4">
                   <Col>
                     <FormLabel>Email</FormLabel>
-                    <FormControl type="email" placeholder="exemplo@email.com" />
+                    <FormControl 
+                      type="email" 
+                      placeholder="exemplo@email.com"
+                      required
+                      value={email} 
+                      onChange={(e) => setEmail(e.target.value)} // Atualiza o estado
+                    />
                   </Col>
                 </Row>
                 <Row className="mb-3">
                   <Col>
                     <FormLabel>Senha</FormLabel>
-                    <FormControl type="password" placeholder="...." />
+                    <FormControl 
+                      type="password" 
+                      placeholder="...."
+                      required
+                      value={senha}
+                      onChange={(e) => setSenha(e.target.value)} // Atualiza o estado
+                    />
                   </Col>
                 </Row>
                 
-                {/* Link SPA: Navega sem recarregar */}
                 <Link to="/recuperar-senha">Esqueceu a senha?</Link>
                 
                 <Row>
                   <Col md={10} className="d-flex justify-content-end">
-                    <Button className="px-5" as="input" type="submit" value={"Entrar"} />
+                    <Button 
+                      className="px-5" 
+                      as="button" // Mudado para button para suportar disabled
+                      type="submit" 
+                      disabled={loading}
+                    >
+                      {loading ? <Spinner animation="border" size="sm" /> : "Entrar"}
+                    </Button>
                   </Col>
                 </Row>
               </Form>
