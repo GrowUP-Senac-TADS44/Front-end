@@ -1,22 +1,44 @@
-// src/pages/PacienteHistorico/PatientDocuments.tsx
-import React from 'react';
-import { Table, Button, Badge } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { Table, Button, Badge, Spinner, Alert } from 'react-bootstrap';
 import { FaPlus, FaEye, FaDownload } from 'react-icons/fa';
-
-const mockDocuments = [
-  { id: 1, name: 'Exame de Sangue - Jul/2024', date: '23/07/2024', type: 'PDF' },
-  { id: 2, name: 'Relatório de Internação - 2023', date: '15/12/2023', type: 'PDF' },
-  { id: 3, name: 'Tomografia Computadorizada', date: '05/11/2023', type: 'JPG' },
-  { id: 4, name: 'Consentimento Informado', date: '01/07/2023', type: 'PDF' },
-];
+import { useParams } from 'react-router-dom';
+import { pacienteService, type Documento } from '../../services/pacienteService';
 
 export function PatientDocuments() {
-  
-  const getTypeBadge = (type: string) => {
-    if (type === 'PDF') return <Badge bg="danger" className="bg-opacity-10 text-danger px-3 py-2 fw-normal">PDF</Badge>;
-    if (type === 'JPG') return <Badge bg="primary" className="bg-opacity-10 text-primary px-3 py-2 fw-normal">JPG</Badge>;
-    return <Badge bg="secondary">{type}</Badge>;
+  const { id } = useParams();
+  const [documentos, setDocumentos] = useState<Documento[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (id) {
+      loadDocuments(Number(id));
+    }
+  }, [id]);
+
+  const loadDocuments = async (pacienteId: number) => {
+    try {
+      const data = await pacienteService.getDocumentos(pacienteId);
+      setDocumentos(data);
+    } catch (err) {
+      setError('Erro ao carregar documentos.');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  // Função auxiliar para tentar descobrir a extensão (PDF, JPG) baseada no caminho do arquivo
+  const getExtensionBadge = (filePath: string) => {
+    const ext = filePath.split('.').pop()?.toLowerCase();
+    
+    if (ext === 'pdf') return <Badge bg="danger" className="bg-opacity-10 text-danger px-3 py-2 fw-normal">PDF</Badge>;
+    if (ext === 'jpg' || ext === 'jpeg' || ext === 'png') return <Badge bg="primary" className="bg-opacity-10 text-primary px-3 py-2 fw-normal">IMG</Badge>;
+    
+    return <Badge bg="secondary" className="px-3 py-2 fw-normal">{ext?.toUpperCase() || 'DOC'}</Badge>;
+  };
+
+  if (loading) return <div className="text-center p-4"><Spinner animation="border" /></div>;
+  if (error) return <Alert variant="danger">{error}</Alert>;
 
   return (
     <div>
@@ -32,29 +54,40 @@ export function PatientDocuments() {
         <Table hover responsive className="pacientes-table align-middle">
           <thead>
             <tr>
-              <th style={{width: '40%'}}>Nome do Documento</th>
-              <th style={{width: '30%'}}>Data de Upload</th>
-              <th style={{width: '15%'}}>Tipo</th>
-              <th style={{width: '15%'}} className="text-end"></th>
+              <th style={{width: '40%'}}>Nome / Descrição</th>
+              <th style={{width: '20%'}}>Categoria</th>
+              <th style={{width: '20%'}}>Data de Emissão</th>
+              <th style={{width: '10%'}}>Arquivo</th>
+              <th style={{width: '10%'}} className="text-end">Ações</th>
             </tr>
           </thead>
           <tbody>
-            {mockDocuments.map((doc) => (
-              <tr key={doc.id}>
-                <td className="fw-medium text-dark py-3">{doc.name}</td>
-                <td className="text-secondary">{doc.date}</td>
-                <td>{getTypeBadge(doc.type)}</td>
-                <td className="text-end">
-                  <div className="d-flex gap-3 justify-content-end text-secondary">
-                    <FaEye style={{cursor: 'pointer'}} title="Visualizar" />
-                    <FaDownload style={{cursor: 'pointer'}} title="Baixar" />
-                  </div>
-                </td>
-              </tr>
-            ))}
+            {documentos.length === 0 ? (
+              <tr><td colSpan={5} className="text-center py-4 text-muted">Nenhum documento encontrado.</td></tr>
+            ) : (
+              documentos.map((doc) => (
+                <tr key={doc.id}>
+                  <td className="fw-medium text-dark py-3">{doc.name}</td>
+                  <td className="text-secondary">{doc.type}</td>
+                  <td className="text-secondary">{doc.date}</td>
+                  <td>{getFileExtension(doc.filePath)}</td>
+                  <td className="text-end">
+                    <div className="d-flex gap-3 justify-content-end text-secondary">
+                      <FaEye style={{cursor: 'pointer'}} title="Visualizar" />
+                      <FaDownload style={{cursor: 'pointer'}} title="Baixar" />
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </Table>
       </div>
     </div>
   );
+  
+  // Wrapper para chamar a função de badge corretamente dentro do render
+  function getFileExtension(path: string) {
+      return getExtensionBadge(path);
+  }
 }

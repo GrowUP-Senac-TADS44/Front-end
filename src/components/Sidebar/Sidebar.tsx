@@ -44,15 +44,7 @@ export function Sidebar(): JSX.Element {
             <span>Pacientes</span>
           </NavLink>
         </li>
-        <li>
-          <NavLink 
-            to="/relatorios"
-            className={({ isActive }) => (isActive ? 'active' : '')}
-          >
-            <TbReport />
-            <span>Relatórios</span>
-          </NavLink>
-        </li>
+
         <li>
           <NavLink 
             to="/conta"

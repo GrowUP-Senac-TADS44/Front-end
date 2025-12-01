@@ -4,18 +4,24 @@ import { Link, useParams } from 'react-router-dom';
 import { FaPlus as Plus } from "react-icons/fa";
 import './PacienteHistorico.css';
 
+// Componentes internos
 import { PatientEvolutions } from './PatientEvolutions';
 import { PatientDocuments } from './PatientDocuments';
+import RelatorioPage from '../RelatorioPage/RelatorioPage'; // <--- Importando o Relatório
+
+// Serviços
 import { pacienteService, type Paciente } from '../../services/pacienteService';
-import { testeService, type TesteAplicado } from '../../services/testeService'; // Importe o serviço novo
+import { testeService, type TesteAplicado } from '../../services/testeService';
 
 export default function PatientHistory() {
   const { id } = useParams();
+  // const navigate = useNavigate(); // Não precisamos mais de navegação externa
+  
   const [activeTab, setActiveTab] = useState('evolucoes');
   
-  // Estados para dados REAIS
+  // Estados de dados
   const [paciente, setPaciente] = useState<Paciente | null>(null);
-  const [testes, setTestes] = useState<TesteAplicado[]>([]); // Lista de testes vazia
+  const [testes, setTestes] = useState<TesteAplicado[]>([]);
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -30,15 +36,13 @@ export default function PatientHistory() {
   const loadData = async (pacienteId: number) => {
     try {
       setLoading(true);
-      // 1. Busca os dados do Paciente
       const pacienteData = await pacienteService.getById(pacienteId);
       setPaciente(pacienteData);
 
-      // 2. Busca TODOS os testes e filtra apenas os deste paciente
-      // (Isso é necessário porque seu backend não tem rota de filtro ainda)
       const todosTestes = await testeService.getAll();
-      const testesDoPaciente = todosTestes.filter(t => t.PacienteID === pacienteId);
       
+      // Filtro corrigido
+      const testesDoPaciente = todosTestes.filter(t => Number(t.PacienteID) === pacienteId);
       setTestes(testesDoPaciente);
 
     } catch (error) {
@@ -49,10 +53,13 @@ export default function PatientHistory() {
     }
   };
 
+  // Renderização da tabela de testes (Sem o botão de relatório)
   const renderTestesContent = () => (
     <div className="history-table-container">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h3 className="history-title mb-0">Histórico de testes aplicados</h3>
+        
+        {/* Botão Único: Novo Teste */}
         <Button variant="primary" className="d-flex align-items-center gap-2">
             <div className="border-white p-0 d-flex align-items-center justify-content-center" style={{width: 20, height: 20}}>
                 <Plus size={12} />
@@ -67,7 +74,7 @@ export default function PatientHistory() {
             <th style={{width: '50px'}}><Form.Check type="checkbox" /></th>
             <th>Data</th>
             <th>Tipo de teste</th>
-            <th>ID Médico</th> {/* Backend atual não manda nome do médico, só ID */}
+            <th>ID Médico</th>
             <th>Resultado</th>
           </tr>
         </thead>
@@ -79,17 +86,14 @@ export default function PatientHistory() {
               <tr key={item.TesteID}>
                 <td><Form.Check type="checkbox" /></td>
                 <td>
-                    {/* Formata a data se ela existir */}
                     {item.DataHora ? new Date(item.DataHora).toLocaleDateString('pt-BR') : '-'}
                 </td>
                 <td>{item.TipoTeste || 'Teste Padrão'}</td>
                 <td>
                   <div className="professional-cell">
-                    {/* Placeholder para imagem, já que o back não manda avatar */}
                     <div className="bg-secondary rounded-circle text-white d-flex align-items-center justify-content-center" style={{width:32, height:32, fontSize: 12}}>
                         Dr
                     </div>
-                    {/* Mostramos o ID pois não temos o nome do médico via include no back */}
                     <span>Médico ID: {item.MedicoID}</span>
                   </div>
                 </td>
@@ -132,6 +136,7 @@ export default function PatientHistory() {
         Pacientes
       </Link>
 
+      {/* Cabeçalho do Paciente */}
       <div className="patient-header">
         <div className="patient-info">
           <img 
@@ -149,17 +154,56 @@ export default function PatientHistory() {
         </div>
       </div>
 
+      {/* Navegação por Abas */}
       <div className="patient-tabs">
-        <div className={`tab-item ${activeTab === 'evolucoes' ? 'active' : ''}`} onClick={() => setActiveTab('evolucoes')}>Evoluções</div>
-        <div className={`tab-item ${activeTab === 'testes' ? 'active' : ''}`} onClick={() => setActiveTab('testes')}>Testes e Laudos</div>
-        <div className={`tab-item ${activeTab === 'documentos' ? 'active' : ''}`} onClick={() => setActiveTab('documentos')}>Documentos</div>
-        <div className={`tab-item ${activeTab === 'dados' ? 'active' : ''}`} onClick={() => setActiveTab('dados')}>Dados Cadastrais</div>
+        <div 
+          className={`tab-item ${activeTab === 'evolucoes' ? 'active' : ''}`} 
+          onClick={() => setActiveTab('evolucoes')}
+        >
+          Evoluções
+        </div>
+        <div 
+          className={`tab-item ${activeTab === 'testes' ? 'active' : ''}`} 
+          onClick={() => setActiveTab('testes')}
+        >
+          Testes e Laudos
+        </div>
+        <div 
+          className={`tab-item ${activeTab === 'documentos' ? 'active' : ''}`} 
+          onClick={() => setActiveTab('documentos')}
+        >
+          Documentos
+        </div>
+        
+        {/* NOVA ABA: RELATÓRIO */}
+        <div 
+          className={`tab-item ${activeTab === 'relatorio' ? 'active' : ''}`} 
+          onClick={() => setActiveTab('relatorio')}
+        >
+          Relatório
+        </div>
+
+        <div 
+          className={`tab-item ${activeTab === 'dados' ? 'active' : ''}`} 
+          onClick={() => setActiveTab('dados')}
+        >
+          Dados Cadastrais
+        </div>
       </div>
 
+      {/* Conteúdo das Abas */}
       <div className="mt-4">
         {activeTab === 'evolucoes' && <PatientEvolutions />} 
         {activeTab === 'testes' && renderTestesContent()}
         {activeTab === 'documentos' && <PatientDocuments />}
+        
+        {/* Renderiza o Relatório aqui dentro */}
+        {activeTab === 'relatorio' && (
+            <div className="fade-in"> 
+                <RelatorioPage />
+            </div>
+        )}
+
         {activeTab === 'dados' && (
             <div className="p-4 bg-white rounded shadow-sm">
                 <h5>Dados Cadastrais</h5>

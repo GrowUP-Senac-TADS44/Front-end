@@ -2,8 +2,29 @@ import { Request, Response } from 'express';
 import prisma from '../prisma';
 
 export async function listTestes(_req: Request, res: Response) {
-  const items = await prisma.testeAplicado.findMany();
-  res.json(items);
+  // Incluímos o prontuário para acessar o PacienteID e o MedicoID
+  const items = await prisma.testeAplicado.findMany({
+    include: {
+      prontuario: {
+        include: {
+          paciente: true,
+          medico: true
+        }
+      }
+    }
+  });
+
+  // Mapeamos para o formato que o Front-end espera (achatando os dados)
+  const formattedItems = items.map(item => ({
+    TesteID: item.TesteID,
+    DataHora: item.DataAplicacao,
+    TipoTeste: item.TipoTeste,
+    Resultado: item.Resultados,
+    PacienteID: item.prontuario.paciente.PacienteID,  
+    MedicoID: item.prontuario.medico.MedicoID         
+}));
+
+res.json(formattedItems);
 }
 
 export async function getTeste(req: Request, res: Response) {

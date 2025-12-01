@@ -80,7 +80,7 @@ export default function Pacientes() {
                 <th>PACIENTE</th>
                 <th>CPF</th>
                 <th>TELEFONE</th>
-                <th>DATA NASC.</th> {/* Backend não retorna 'Última Consulta' por padrão, troquei por Nasc. */}
+                <th>DATA NASC.</th>
                 <th className="text-end">AÇÕES</th>
               </tr>
             </thead>

@@ -41,3 +41,33 @@ export async function deleteDocumento(req: Request, res: Response) {
     res.status(400).json({ error: err.message });
   }
 }
+
+export async function listDocumentosDoPaciente(req: Request, res: Response) {
+  const pacienteId = Number(req.params.id);
+
+  try {
+    const documentos = await prisma.documento.findMany({
+      where: {
+        prontuario: {
+          PacienteID: pacienteId
+        }
+      },
+      orderBy: {
+        DataEmissao: 'desc'
+      }
+    });
+
+    // Formatamos para o Frontend
+    const formattedDocs = documentos.map(doc => ({
+      id: doc.DocumentoID,
+      name: doc.Descricao || doc.TipoDocumento, // Usa a descrição ou o tipo como nome
+      date: new Date(doc.DataEmissao).toLocaleDateString('pt-BR'),
+      type: doc.TipoDocumento, // Ex: "Exame de Sangue"
+      filePath: doc.CaminhoArquivo // Ex: "/docs/exames/exame.pdf"
+    }));
+
+    res.json(formattedDocs);
+  } catch (err: any) {
+    res.status(500).json({ error: 'Erro ao buscar documentos do paciente.' });
+  }
+}

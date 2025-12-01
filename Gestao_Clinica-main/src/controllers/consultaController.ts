@@ -88,3 +88,44 @@ export async function getPacientesHoje(req: Request, res: Response) {
     res.status(500).json({ error: err.message });
   }
 }
+
+export async function listEvolucoesDoPaciente(req: Request, res: Response) {
+  // O ID vem da rota /pacientes/:id/evolucoes
+  const pacienteId = Number(req.params.id);
+
+  try {
+    const consultas = await prisma.consulta.findMany({
+      where: {
+        // Busca consultas onde o Prontuário pertence a este Paciente
+        prontuario: {
+          PacienteID: pacienteId
+        }
+      },
+      include: {
+        medico: true, // Importante: inclui os dados do médico para pegar o nome
+      },
+      orderBy: {
+        DataHoraInicio: 'desc' // Ordena das mais recentes para as mais antigas
+      }
+    });
+
+    // Formata os dados para o padrão que o Front-end (PatientEvolutions) espera
+    const evolucoes = consultas.map(c => {
+      const dataObj = new Date(c.DataHoraInicio);
+      
+      return {
+        id: c.ConsultaID,
+        date: dataObj.toLocaleDateString('pt-BR'), // Ex: "10/01/2025"
+        time: dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), // Ex: "09:00"
+        doctor: c.medico.NomeCompleto,
+        description: c.ResumoConsulta || c.Observacoes || "Sem descrição registrada."
+      };
+    });
+
+    res.json(evolucoes);
+
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro ao buscar evoluções do paciente.' });
+  }
+}

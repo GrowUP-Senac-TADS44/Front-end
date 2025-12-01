@@ -9,8 +9,8 @@ import { NewPassword } from './pages/NewPassword/NewPassword';
 
 // --- ÁREA PRIVADA ---
 import { MainLayout } from './pages/MainLayout/MainLayout';
-import RelatorioPage from './pages/RelatorioPage/RelatorioPage';
-import PatientHistory from './pages/PacienteHistorico/PacienteHistorico';
+import RelatorioPage from './pages/RelatorioPage/RelatorioPage'; // (Opcional se não usar rota direta)
+import PatientHistory from './pages/PacienteHistorico/PacienteHistorico'; // <--- IMPORTANTE: Importe isso
 import Pacientes from './pages/Pacientes/Pacientes';
 
 export function App() {
@@ -24,11 +24,12 @@ export function App() {
 
       {/* === ÁREA PRIVADA === */}
       <Route element={<MainLayout />}>
-        <Route path="/relatorios" element={<RelatorioPage />} />
-        
-        {/* Nova Rota de Histórico de Pacientes */}
+        {/* Rota da Lista de Pacientes */}
+        <Route path="/pacientes" element={<Pacientes />} />
         <Route path="/pacientes/:id" element={<PatientHistory />} />
-        <Route path="/pacientes" element={<Pacientes />} />      
+        
+        {/* Outras rotas */}
+        <Route path="/relatorios" element={<RelatorioPage />} /> {/* Opcional, pode remover se quiser */}
         <Route path="/dashboard" element={<div style={{padding: 20}}>Dashboard (Em construção)</div>} />
       </Route>
     </Routes>
