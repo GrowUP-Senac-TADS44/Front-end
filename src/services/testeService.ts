@@ -7,6 +7,7 @@ export interface TesteAplicado {
   DataHora: string;
   TipoTeste: string; // Ou o nome do campo correto no seu banco
   Resultado: string;
+  NomeMedico: string;
   // Adicione outros campos que seu banco retorna
 }
 

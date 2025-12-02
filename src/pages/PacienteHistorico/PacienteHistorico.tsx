@@ -69,46 +69,50 @@ export default function PatientHistory() {
       </div>
 
       <Table hover responsive borderless className="table-custom">
-        <thead>
-          <tr>
-            <th style={{width: '50px'}}><Form.Check type="checkbox" /></th>
-            <th>Data</th>
-            <th>Tipo de teste</th>
-            <th>ID Médico</th>
-            <th>Resultado</th>
+    <thead>
+      <tr>
+        <th style={{width: '50px'}}><Form.Check type="checkbox" /></th>
+        <th>Data</th>
+        <th>Tipo de teste</th>
+        <th>Médico</th> {/* <--- MUDANÇA 1: Título da coluna */}
+        <th>Resultado</th>
+      </tr>
+    </thead>
+    <tbody>
+      {testes.length === 0 ? (
+         <tr><td colSpan={5} className="text-center text-muted">Nenhum teste encontrado para este paciente.</td></tr>
+      ) : (
+        testes.map((item) => (
+          <tr key={item.TesteID}>
+            <td><Form.Check type="checkbox" /></td>
+            <td>
+                {item.DataHora ? new Date(item.DataHora).toLocaleDateString('pt-BR') : '-'}
+            </td>
+            <td>{item.TipoTeste || 'Teste Padrão'}</td>
+            <td>
+              <div className="professional-cell">
+                <div className="bg-secondary rounded-circle text-white d-flex align-items-center justify-content-center" style={{width:32, height:32, fontSize: 12}}>
+                    {/* Pega a primeira letra do nome do médico para o avatar */}
+                    {item.NomeMedico ? item.NomeMedico.charAt(0) : 'D'}
+                </div>
+                {/* <--- MUDANÇA 2: Exibe o Nome ao invés do ID */}
+                <span className="fw-medium">
+                    {item.NomeMedico || `Médico ID: ${item.MedicoID}`}
+                </span>
+              </div>
+            </td>
+            <td>
+                {item.Resultado ? (
+                    <span className="text-dark">{item.Resultado}</span>
+                ) : (
+                    <span className="text-muted font-italic">Sem resultado</span>
+                )}
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          {testes.length === 0 ? (
-             <tr><td colSpan={5} className="text-center text-muted">Nenhum teste encontrado para este paciente.</td></tr>
-          ) : (
-            testes.map((item) => (
-              <tr key={item.TesteID}>
-                <td><Form.Check type="checkbox" /></td>
-                <td>
-                    {item.DataHora ? new Date(item.DataHora).toLocaleDateString('pt-BR') : '-'}
-                </td>
-                <td>{item.TipoTeste || 'Teste Padrão'}</td>
-                <td>
-                  <div className="professional-cell">
-                    <div className="bg-secondary rounded-circle text-white d-flex align-items-center justify-content-center" style={{width:32, height:32, fontSize: 12}}>
-                        Dr
-                    </div>
-                    <span>Médico ID: {item.MedicoID}</span>
-                  </div>
-                </td>
-                <td>
-                    {item.Resultado ? (
-                        <span className="text-dark">{item.Resultado}</span>
-                    ) : (
-                        <span className="text-muted font-italic">Sem resultado</span>
-                    )}
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </Table>
+        ))
+      )}
+    </tbody>
+  </Table>
     </div>
   );
 
