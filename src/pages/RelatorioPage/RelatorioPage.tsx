@@ -1,8 +1,10 @@
+// src/pages/RelatorioPage/RelatorioPage.tsx
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import './RelatorioPage.css'; 
 
-import { FiAlertTriangle, FiSave } from 'react-icons/fi'; // Adicionei ícone de Save
+import { FiAlertTriangle, FiSave } from 'react-icons/fi';
 import { FaBold, FaItalic, FaUnderline, FaListUl, FaListOl, FaSpinner } from 'react-icons/fa';
 
 // Serviços
@@ -62,7 +64,8 @@ function RelatorioPage(): JSX.Element {
       if (testes.length === 0) {
         setLaudoText(
           `PACIENTE: ${paciente.NomeCompleto}\nIDADE: ${idade} anos\n\n` +
-          `\nDados insuficientes para geração de laudo automatizado por IA. Recomenda-se a aplicação dos protocolos de avaliação padrão para posterior análise.`
+          `SITUAÇÃO ATUAL:\nO paciente foi cadastrado no sistema, porém não constam exames ou avaliações registradas neste prontuário até o momento.\n\n` +
+          `CONCLUSÃO:\nDados insuficientes para geração de laudo automatizado por IA. Recomenda-se a aplicação dos protocolos de avaliação padrão para posterior análise.`
         );
       } else {
         const listaFormatada = testes.map(t => {
@@ -87,7 +90,6 @@ function RelatorioPage(): JSX.Element {
     setSaving(true);
     try {
       await pacienteService.saveLaudo(Number(id), laudoText);
-      // Feedback visual simples ou Toast poderia ser usado aqui
       alert('Rascunho salvo com sucesso!'); 
       setHasDraft(true); 
     } catch (error) {
@@ -127,7 +129,6 @@ function RelatorioPage(): JSX.Element {
         <h1>Relatório de Avaliação</h1>
         <div className="sp-header-buttons">
           <button className="sp-btn sp-btn-secondary">Exportar PDF</button>
-          {/* Voltei o Assinar Laudo para cá (Ação Final) */}
           <button className="sp-btn sp-btn-primary">Assinar Laudo</button>
         </div>
       </header>
@@ -183,15 +184,16 @@ function RelatorioPage(): JSX.Element {
         <div className="data-visualization sp-card">
           <h3>Visualização de Dados</h3>
           <div className="chart-placeholder">
-             {testes.length === 0 ? (
-                <div style={{height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ccc'}}>
-                  Gráfico indisponível (Sem dados)
-                </div>
-             ) : (
+             {/* Verifica se é o paciente ID 1 para mostrar o gráfico de exemplo */}
+             {Number(id) === 1 ? (
                 <img 
                   src="https://i.postimg.cc/rsFdDWL1/Gemini-Generated-Image-j3z4pij3z4pij3z4-1.png" 
                   alt="Patient Vital Sign Trends Chart" 
                 />
+             ) : (
+                <div style={{height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ccc'}}>
+                  Dados ainda não disponíveis
+                </div>
              )}
           </div>
         </div>
@@ -199,7 +201,6 @@ function RelatorioPage(): JSX.Element {
         <div className="draft-laudo sp-card">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h3 style={{margin:0}}>Rascunho do Laudo {hasDraft ? '(Carregado)' : '(Auto)'}</h3>
-            {/* Se quiser adicionar algum status aqui, pode por */}
           </div>
 
           <div className="editor-toolbar">
@@ -219,7 +220,6 @@ function RelatorioPage(): JSX.Element {
             />
           </div>
 
-          {/* --- BOTÃO AGORA AQUI EMBAIXO --- */}
           <div style={{ marginTop: '16px', borderTop: '1px solid #eee', paddingTop: '16px', textAlign: 'right' }}>
             <button 
                 className="sp-btn sp-btn-primary"
@@ -234,7 +234,6 @@ function RelatorioPage(): JSX.Element {
                 )}
             </button>
           </div>
-          {/* ------------------------------- */}
 
         </div>
       </section>
