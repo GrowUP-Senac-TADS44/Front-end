@@ -72,5 +72,9 @@ export const pacienteService = {
   async update(id: number, payload: Partial<Paciente>) {
     const { data } = await api.put(`/pacientes/${id}`, payload);
     return data;
+  },
+
+  async deleteDocumento(documentoId: number) {
+    await api.delete(`/documentos/${documentoId}`);
   }
 };

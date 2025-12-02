@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Container, Button, Table, Form, Spinner, Alert, Modal, Row, Col } from 'react-bootstrap';
 import { Link, useParams } from 'react-router-dom';
-import { FaPlus as Plus } from "react-icons/fa";
+import { FaPlus as Plus, FaTrash } from "react-icons/fa"; // Adicionei FaTrash
 import { FiEdit } from 'react-icons/fi';
 import './PacienteHistorico.css';
 
@@ -27,10 +27,10 @@ const formatCPF = (cpf: string | null | undefined) => {
 const formatTelefone = (tel: string | null | undefined) => {
   if (!tel) return '-';
   const cleaned = tel.replace(/\D/g, '');
-  if (cleaned.length === 11) { // Celular
+  if (cleaned.length === 11) {
     return cleaned.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
   }
-  if (cleaned.length === 10) { // Fixo
+  if (cleaned.length === 10) {
     return cleaned.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
   }
   return cleaned;
@@ -48,20 +48,18 @@ export default function PatientHistory() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // --- ESTADOS PARA O MODAL DE EDIÇÃO ---
+  // --- ESTADOS PARA O MODAL DE EDIÇÃO (PACIENTE) ---
   const [showEditModal, setShowEditModal] = useState(false);
   const [editSaving, setEditSaving] = useState(false);
   const [editForm, setEditForm] = useState({
-    NomeCompleto: '',
-    CPF: '',
-    DataNascimento: '',
-    Telefone: '',
-    Email: '',
-    Endereco: '',
-    EstadoCivil: '',
-    NomeContatoEmergencia: '',
-    TelefoneContatoEmergencia: ''
+    NomeCompleto: '', CPF: '', DataNascimento: '', Telefone: '', Email: '',
+    Endereco: '', EstadoCivil: '', NomeContatoEmergencia: '', TelefoneContatoEmergencia: ''
   });
+
+  // --- NOVOS ESTADOS PARA O MODAL DE EXCLUSÃO (TESTE) ---
+  const [showDeleteTestModal, setShowDeleteTestModal] = useState(false);
+  const [testToDelete, setTestToDelete] = useState<number | null>(null);
+  const [deletingTest, setDeletingTest] = useState(false);
 
   // Busca dados ao carregar
   useEffect(() => {
@@ -77,8 +75,6 @@ export default function PatientHistory() {
       setPaciente(pacienteData);
 
       const todosTestes = await testeService.getAll();
-      
-      // Filtro corrigido
       const testesDoPaciente = todosTestes.filter(t => Number(t.PacienteID) === pacienteId);
       setTestes(testesDoPaciente);
 
@@ -90,17 +86,13 @@ export default function PatientHistory() {
     }
   };
 
-  // --- LÓGICA DE EDIÇÃO ---
+  // --- LÓGICA DE EDIÇÃO (PACIENTE) ---
   const handleOpenEdit = () => {
     if (!paciente) return;
-    
-    // Formata a data para o input HTML (yyyy-mm-dd)
     let dataFormatada = '';
     if (paciente.DataNascimento) {
-      // Pega a parte da data ISO antes do 'T'
       dataFormatada = new Date(paciente.DataNascimento).toISOString().split('T')[0];
     }
-
     setEditForm({
       NomeCompleto: paciente.NomeCompleto,
       CPF: paciente.CPF || '',
@@ -123,24 +115,42 @@ export default function PatientHistory() {
     e.preventDefault();
     if (!paciente || !id) return;
     setEditSaving(true);
-
     try {
-      // Prepara o payload (limpa CPF e formata Data para ISO)
       const payload = {
         ...editForm,
         CPF: editForm.CPF.replace(/\D/g, ''),
         DataNascimento: new Date(editForm.DataNascimento).toISOString()
       };
-
       await pacienteService.update(Number(id), payload);
-      
       alert('Dados atualizados com sucesso!');
       setShowEditModal(false);
-      loadData(Number(id)); // Recarrega os dados na tela para atualizar o visual
+      loadData(Number(id)); 
     } catch (err) {
       alert('Erro ao atualizar paciente. Verifique os dados.');
     } finally {
       setEditSaving(false);
+    }
+  };
+
+  // --- LÓGICA DE EXCLUSÃO (TESTE) ---
+  const confirmDeleteTest = (testeId: number) => {
+    setTestToDelete(testeId);
+    setShowDeleteTestModal(true);
+  };
+
+  const handleDeleteTest = async () => {
+    if (!testToDelete) return;
+    setDeletingTest(true);
+    try {
+      await testeService.delete(testToDelete);
+      // Remove visualmente da lista
+      setTestes(testes.filter(t => t.TesteID !== testToDelete));
+      setShowDeleteTestModal(false);
+    } catch (err) {
+      alert('Erro ao excluir o teste.');
+    } finally {
+      setDeletingTest(false);
+      setTestToDelete(null);
     }
   };
 
@@ -158,7 +168,7 @@ export default function PatientHistory() {
         </Button>
       </div>
 
-      <Table hover responsive borderless className="table-custom">
+      <Table hover responsive borderless className="table-custom align-middle">
         <thead>
           <tr>
             <th style={{width: '50px'}}><Form.Check type="checkbox" /></th>
@@ -166,11 +176,12 @@ export default function PatientHistory() {
             <th>Tipo de teste</th>
             <th>Médico</th>
             <th>Resultado</th>
+            <th className="text-end">Ações</th> {/* Nova Coluna */}
           </tr>
         </thead>
         <tbody>
           {testes.length === 0 ? (
-             <tr><td colSpan={5} className="text-center text-muted">Nenhum teste encontrado para este paciente.</td></tr>
+             <tr><td colSpan={6} className="text-center text-muted">Nenhum teste encontrado para este paciente.</td></tr>
           ) : (
             testes.map((item) => (
               <tr key={item.TesteID}>
@@ -195,6 +206,15 @@ export default function PatientHistory() {
                     ) : (
                         <span className="text-muted font-italic">Sem resultado</span>
                     )}
+                </td>
+                
+                {/* COLUNA DE AÇÕES (LIXEIRA) */}
+                <td className="text-end">
+                    <FaTrash 
+                        style={{cursor: 'pointer', color: '#d93025'}} 
+                        title="Excluir Teste"
+                        onClick={() => confirmDeleteTest(item.TesteID)}
+                    />
                 </td>
               </tr>
             ))
@@ -228,7 +248,6 @@ export default function PatientHistory() {
         Pacientes
       </Link>
 
-      {/* Cabeçalho do Paciente */}
       <div className="patient-header">
         <div className="patient-info">
           <img 
@@ -246,62 +265,29 @@ export default function PatientHistory() {
         </div>
       </div>
 
-      {/* Navegação por Abas */}
       <div className="patient-tabs">
-        <div 
-          className={`tab-item ${activeTab === 'evolucoes' ? 'active' : ''}`} 
-          onClick={() => setActiveTab('evolucoes')}
-        >
-          Evoluções
-        </div>
-        <div 
-          className={`tab-item ${activeTab === 'testes' ? 'active' : ''}`} 
-          onClick={() => setActiveTab('testes')}
-        >
-          Testes aplicados
-        </div>
-        <div 
-          className={`tab-item ${activeTab === 'documentos' ? 'active' : ''}`} 
-          onClick={() => setActiveTab('documentos')}
-        >
-          Documentos
-        </div>
-        
-        <div 
-          className={`tab-item ${activeTab === 'relatorio' ? 'active' : ''}`} 
-          onClick={() => setActiveTab('relatorio')}
-        >
-          Relatório
-        </div>
-
-        <div 
-          className={`tab-item ${activeTab === 'dados' ? 'active' : ''}`} 
-          onClick={() => setActiveTab('dados')}
-        >
-          Dados Cadastrais
-        </div>
+        <div className={`tab-item ${activeTab === 'evolucoes' ? 'active' : ''}`} onClick={() => setActiveTab('evolucoes')}>Evoluções</div>
+        <div className={`tab-item ${activeTab === 'testes' ? 'active' : ''}`} onClick={() => setActiveTab('testes')}>Testes aplicados</div>
+        <div className={`tab-item ${activeTab === 'documentos' ? 'active' : ''}`} onClick={() => setActiveTab('documentos')}>Documentos</div>
+        <div className={`tab-item ${activeTab === 'relatorio' ? 'active' : ''}`} onClick={() => setActiveTab('relatorio')}>Relatório</div>
+        <div className={`tab-item ${activeTab === 'dados' ? 'active' : ''}`} onClick={() => setActiveTab('dados')}>Dados Cadastrais</div>
       </div>
 
-      {/* Conteúdo das Abas */}
       <div className="mt-4">
         {activeTab === 'evolucoes' && <PatientEvolutions />} 
         {activeTab === 'testes' && renderTestesContent()}
         {activeTab === 'documentos' && <PatientDocuments />}
         
-        {/* Renderiza o Relatório aqui dentro */}
         {activeTab === 'relatorio' && (
             <div className="fade-in"> 
                 <RelatorioPage />
             </div>
         )}
 
-        {/* ABA DE DADOS CADASTRAIS (Com Botão Editar) */}
         {activeTab === 'dados' && (
             <div className="p-4 bg-white rounded shadow-sm">
                 <div className="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
                     <h5 className="text-primary mb-0">Dados Pessoais</h5>
-                    
-                    {/* BOTÃO DE EDITAR */}
                     <Button variant="outline-primary" size="sm" onClick={handleOpenEdit} className="d-flex align-items-center gap-2">
                         <FiEdit /> Editar Dados
                     </Button>
@@ -318,11 +304,7 @@ export default function PatientHistory() {
                     </div>
                     <div className="col-md-3 mb-2">
                         <small className="text-secondary d-block">Data de Nascimento</small>
-                        <strong>
-                            {paciente.DataNascimento 
-                                ? new Date(paciente.DataNascimento).toLocaleDateString('pt-BR') 
-                                : '-'}
-                        </strong>
+                        <strong>{paciente.DataNascimento ? new Date(paciente.DataNascimento).toLocaleDateString('pt-BR') : '-'}</strong>
                     </div>
                     <div className="col-md-3 mb-2">
                         <small className="text-secondary d-block">Estado Civil</small>
@@ -330,7 +312,6 @@ export default function PatientHistory() {
                     </div>
                 </div>
 
-                {/* SEÇÃO 2: CONTATO E ENDEREÇO */}
                 <h5 className="mb-3 text-primary border-bottom pb-2">Contato e Endereço</h5>
                 <div className="row mb-4">
                     <div className="col-md-4 mb-2">
@@ -347,7 +328,6 @@ export default function PatientHistory() {
                     </div>
                 </div>
 
-                {/* SEÇÃO 3: EMERGÊNCIA */}
                 <h5 className="mb-3 text-danger border-bottom pb-2">Em Caso de Emergência</h5>
                 <div className="row">
                     <div className="col-md-4 mb-2">
@@ -363,7 +343,7 @@ export default function PatientHistory() {
         )}
       </div>
 
-      {/* --- MODAL DE EDIÇÃO --- */}
+      {/* --- MODAL DE EDIÇÃO DE PACIENTE --- */}
       <Modal show={showEditModal} onHide={() => setShowEditModal(false)} centered size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Editar Paciente</Modal.Title>
@@ -453,6 +433,25 @@ export default function PatientHistory() {
             </Button>
           </Modal.Footer>
         </Form>
+      </Modal>
+
+      {/* --- MODAL DE EXCLUSÃO DE TESTE --- */}
+      <Modal show={showDeleteTestModal} onHide={() => setShowDeleteTestModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmar Exclusão</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Tem certeza que deseja excluir este teste? <br/>
+          <small className="text-muted">Esta ação não poderá ser desfeita.</small>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteTestModal(false)}>
+            Cancelar
+          </Button>
+          <Button variant="danger" onClick={handleDeleteTest} disabled={deletingTest}>
+            {deletingTest ? 'Excluindo...' : 'Sim, Excluir'}
+          </Button>
+        </Modal.Footer>
       </Modal>
 
     </Container>
