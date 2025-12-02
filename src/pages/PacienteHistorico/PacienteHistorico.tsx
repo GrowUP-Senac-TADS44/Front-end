@@ -53,7 +53,7 @@ export default function PatientHistory() {
     }
   };
 
-  // Renderização da tabela de testes (Sem o botão de relatório)
+  // Renderização da tabela de testes
   const renderTestesContent = () => (
     <div className="history-table-container">
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -166,7 +166,7 @@ export default function PatientHistory() {
           className={`tab-item ${activeTab === 'testes' ? 'active' : ''}`} 
           onClick={() => setActiveTab('testes')}
         >
-          Testes e Laudos
+          Testes aplicados
         </div>
         <div 
           className={`tab-item ${activeTab === 'documentos' ? 'active' : ''}`} 
