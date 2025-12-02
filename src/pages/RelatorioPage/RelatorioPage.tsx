@@ -62,8 +62,7 @@ function RelatorioPage(): JSX.Element {
       if (testes.length === 0) {
         setLaudoText(
           `PACIENTE: ${paciente.NomeCompleto}\nIDADE: ${idade} anos\n\n` +
-          `SITUAÇÃO ATUAL:\nO paciente foi cadastrado no sistema, porém não constam exames ou avaliações registradas neste prontuário até o momento.\n\n` +
-          `CONCLUSÃO:\nDados insuficientes para geração de laudo automatizado por IA. Recomenda-se a aplicação dos protocolos de avaliação padrão para posterior análise.`
+          `\nDados insuficientes para geração de laudo automatizado por IA. Recomenda-se a aplicação dos protocolos de avaliação padrão para posterior análise.`
         );
       } else {
         const listaFormatada = testes.map(t => {
