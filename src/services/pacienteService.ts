@@ -76,5 +76,23 @@ export const pacienteService = {
 
   async deleteDocumento(documentoId: number) {
     await api.delete(`/documentos/${documentoId}`);
+  },
+
+  // Cria uma nova evolução
+  async createEvolucao(payload: any) {
+    // payload deve conter: { ProntuarioID, MedicoID, DataHoraInicio, ResumoConsulta }
+    const { data } = await api.post('/consultas', payload);
+    return data;
+  },
+
+  // Atualiza uma evolução existente
+  async updateEvolucao(consultaId: number, payload: any) {
+    const { data } = await api.put(`/consultas/${consultaId}`, payload);
+    return data;
+  },
+
+  // Exclui uma evolução
+  async deleteEvolucao(consultaId: number) {
+    await api.delete(`/consultas/${consultaId}`);
   }
 };
