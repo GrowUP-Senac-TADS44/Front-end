@@ -206,10 +206,60 @@ export default function PatientHistory() {
 
         {activeTab === 'dados' && (
             <div className="p-4 bg-white rounded shadow-sm">
-                <h5>Dados Cadastrais</h5>
-                <p><strong>Nome:</strong> {paciente.NomeCompleto}</p>
-                <p><strong>Telefone:</strong> {paciente.Telefone}</p>
-                <p><strong>Endereço:</strong> {paciente.Endereco}</p>
+                {/* --- SEÇÃO 1: DADOS PESSOAIS --- */}
+                <h5 className="mb-3 text-primary border-bottom pb-2">Dados Pessoais</h5>
+                <div className="row mb-4">
+                    <div className="col-md-6 mb-2">
+                        <small className="text-secondary d-block">Nome Completo</small>
+                        <strong>{paciente.NomeCompleto}</strong>
+                    </div>
+                    <div className="col-md-3 mb-2">
+                        <small className="text-secondary d-block">CPF</small>
+                        <strong>{paciente.CPF || '-'}</strong>
+                    </div>
+                    <div className="col-md-3 mb-2">
+                        <small className="text-secondary d-block">Data de Nascimento</small>
+                        <strong>
+                            {paciente.DataNascimento 
+                                ? new Date(paciente.DataNascimento).toLocaleDateString('pt-BR') 
+                                : '-'}
+                        </strong>
+                    </div>
+                    <div className="col-md-3 mb-2">
+                        <small className="text-secondary d-block">Estado Civil</small>
+                        <strong>{paciente.EstadoCivil || '-'}</strong>
+                    </div>
+                </div>
+
+                {/* --- SEÇÃO 2: CONTATO E ENDEREÇO --- */}
+                <h5 className="mb-3 text-primary border-bottom pb-2">Contato e Endereço</h5>
+                <div className="row mb-4">
+                    <div className="col-md-4 mb-2">
+                        <small className="text-secondary d-block">E-mail</small>
+                        <strong>{paciente.Email || '-'}</strong>
+                    </div>
+                    <div className="col-md-3 mb-2">
+                        <small className="text-secondary d-block">Telefone</small>
+                        <strong>{paciente.Telefone || '-'}</strong>
+                    </div>
+                    <div className="col-md-5 mb-2">
+                        <small className="text-secondary d-block">Endereço</small>
+                        <strong>{paciente.Endereco || '-'}</strong>
+                    </div>
+                </div>
+
+                {/* --- SEÇÃO 3: EMERGÊNCIA --- */}
+                <h5 className="mb-3 text-danger border-bottom pb-2">Em Caso de Emergência</h5>
+                <div className="row">
+                    <div className="col-md-4 mb-2">
+                        <small className="text-secondary d-block">Nome do Contato</small>
+                        <strong>{paciente.NomeContatoEmergencia || '-'}</strong>
+                    </div>
+                    <div className="col-md-3 mb-2">
+                        <small className="text-secondary d-block">Telefone do Contato</small>
+                        <strong>{paciente.TelefoneContatoEmergencia || '-'}</strong>
+                    </div>
+                </div>
             </div>
         )}
       </div>
