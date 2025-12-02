@@ -1,14 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Badge, Spinner, Alert } from 'react-bootstrap';
-import { FaPlus, FaEye, FaDownload } from 'react-icons/fa';
+import { Table, Button, Badge, Spinner, Alert, Modal } from 'react-bootstrap';
+import { FaPlus, FaEye, FaDownload, FaTrash } from 'react-icons/fa'; // Adicionei FaTrash
 import { useParams } from 'react-router-dom';
 import { pacienteService, type Documento } from '../../services/pacienteService';
+
+// Defina a URL base da sua API aqui (ou importe de um arquivo de config)
+const API_BASE_URL = 'http://localhost:3000';
 
 export function PatientDocuments() {
   const { id } = useParams();
   const [documentos, setDocumentos] = useState<Documento[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Estados para o Modal de Exclusão
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [docToDelete, setDocToDelete] = useState<number | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -27,7 +35,31 @@ export function PatientDocuments() {
     }
   };
 
-  // Função auxiliar para tentar descobrir a extensão (PDF, JPG) baseada no caminho do arquivo
+  // Função para abrir o modal de confirmação
+  const confirmDelete = (docId: number) => {
+    setDocToDelete(docId);
+    setShowDeleteModal(true);
+  };
+
+  // Função que realmente apaga
+  const handleDelete = async () => {
+    if (!docToDelete) return;
+    setDeleting(true);
+    try {
+      await pacienteService.deleteDocumento(docToDelete);
+      
+      // Remove da lista visualmente sem precisar recarregar tudo
+      setDocumentos(documentos.filter(d => d.id !== docToDelete));
+      setShowDeleteModal(false);
+    } catch (err) {
+      alert('Erro ao excluir documento.');
+    } finally {
+      setDeleting(false);
+      setDocToDelete(null);
+    }
+  };
+
+  // Função auxiliar para badge de extensão
   const getExtensionBadge = (filePath: string) => {
     const ext = filePath.split('.').pop()?.toLowerCase();
     
@@ -70,11 +102,30 @@ export function PatientDocuments() {
                   <td className="fw-medium text-dark py-3">{doc.name}</td>
                   <td className="text-secondary">{doc.type}</td>
                   <td className="text-secondary">{doc.date}</td>
-                  <td>{getFileExtension(doc.filePath)}</td>
+                  <td>{getExtensionBadge(doc.filePath)}</td>
                   <td className="text-end">
-                    <div className="d-flex gap-3 justify-content-end text-secondary">
+                    <div className="d-flex gap-3 justify-content-end text-secondary align-items-center">
                       <FaEye style={{cursor: 'pointer'}} title="Visualizar" />
-                      <FaDownload style={{cursor: 'pointer'}} title="Baixar" />
+                      
+                      <a 
+                        href={`${API_BASE_URL}${doc.filePath}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        download
+                        title="Baixar"
+                        className="text-secondary d-flex align-items-center"
+                        style={{ textDecoration: 'none', color: 'inherit' }}
+                      >
+                        <FaDownload />
+                      </a>
+
+                      {/* BOTÃO DE EXCLUIR */}
+                      <FaTrash 
+                        style={{cursor: 'pointer', color: '#d93025'}} 
+                        title="Excluir"
+                        onClick={() => confirmDelete(doc.id)}
+                      />
+
                     </div>
                   </td>
                 </tr>
@@ -83,11 +134,26 @@ export function PatientDocuments() {
           </tbody>
         </Table>
       </div>
+
+      {/* --- MODAL DE CONFIRMAÇÃO DE EXCLUSÃO --- */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmar Exclusão</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Tem certeza que deseja excluir este documento? <br/>
+          <small className="text-muted">Esta ação não poderá ser desfeita.</small>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Cancelar
+          </Button>
+          <Button variant="danger" onClick={handleDelete} disabled={deleting}>
+            {deleting ? 'Excluindo...' : 'Sim, Excluir'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
     </div>
   );
-  
-  // Wrapper para chamar a função de badge corretamente dentro do render
-  function getFileExtension(path: string) {
-      return getExtensionBadge(path);
-  }
 }

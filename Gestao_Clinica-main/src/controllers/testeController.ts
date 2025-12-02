@@ -21,7 +21,8 @@ export async function listTestes(_req: Request, res: Response) {
     TipoTeste: item.TipoTeste,
     Resultado: item.Resultados,
     PacienteID: item.prontuario.paciente.PacienteID,  
-    MedicoID: item.prontuario.medico.MedicoID         
+    MedicoID: item.prontuario.medico.MedicoID,
+    NomeMedico: item.prontuario.medico.NomeCompleto         
 }));
 
 res.json(formattedItems);
