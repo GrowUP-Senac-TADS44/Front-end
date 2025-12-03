@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 export const api = axios.create({
-  baseURL: 'http://localhost:3000', // Porta definida no seu index.ts do backend
+  // Tenta pegar a variável do ambiente (Vercel), se não achar, usa localhost (PC)
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000', 
 });
 
 // Interceptador: Antes de cada requisição, veja se tem token e anexe
