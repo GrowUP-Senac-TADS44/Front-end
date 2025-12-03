@@ -1,17 +1,14 @@
-// src/pages/RelatorioPage/RelatorioPage.tsx
-
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'; // Removido React
 import { useParams } from 'react-router-dom';
 import './RelatorioPage.css'; 
 
 import { FiAlertTriangle, FiSave } from 'react-icons/fi';
 import { FaBold, FaItalic, FaUnderline, FaListUl, FaListOl, FaSpinner } from 'react-icons/fa';
 
-// Serviços
 import { pacienteService, type Paciente } from '../../services/pacienteService';
 import { testeService, type TesteAplicado } from '../../services/testeService';
 
-function RelatorioPage(): JSX.Element {
+function RelatorioPage() { // Removido : JSX.Element
   const { id } = useParams();
   
   const [paciente, setPaciente] = useState<Paciente | null>(null);
@@ -19,11 +16,9 @@ function RelatorioPage(): JSX.Element {
   const [loading, setLoading] = useState(true);
   const [laudoText, setLaudoText] = useState('');
   
-  // Estados de controle
   const [saving, setSaving] = useState(false);
   const [hasDraft, setHasDraft] = useState(false);
 
-  // 1. Carrega dados
   useEffect(() => {
     if (id) loadData(Number(id));
   }, [id]);
@@ -56,7 +51,6 @@ function RelatorioPage(): JSX.Element {
     }
   };
 
-  // 2. Lógica Inteligente de Geração de Texto
   useEffect(() => {
     if (paciente && !hasDraft) {
       const idade = calcularIdade(paciente.DataNascimento);
@@ -184,7 +178,6 @@ function RelatorioPage(): JSX.Element {
         <div className="data-visualization sp-card">
           <h3>Visualização de Dados</h3>
           <div className="chart-placeholder">
-             {/* Verifica se é o paciente ID 1 para mostrar o gráfico de exemplo */}
              {Number(id) === 1 ? (
                 <img 
                   src="https://i.postimg.cc/rsFdDWL1/Gemini-Generated-Image-j3z4pij3z4pij3z4-1.png" 

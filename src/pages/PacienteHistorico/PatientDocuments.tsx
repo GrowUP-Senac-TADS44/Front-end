@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react'; // Removido React
 import { Table, Button, Badge, Spinner, Alert, Modal } from 'react-bootstrap';
-import { FaPlus, FaEye, FaDownload, FaTrash } from 'react-icons/fa'; // Adicionei FaTrash
+import { FaPlus, FaEye, FaDownload, FaTrash } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
 import { pacienteService, type Documento } from '../../services/pacienteService';
 
 // Defina a URL base da sua API aqui (ou importe de um arquivo de config)
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export function PatientDocuments() {
   const { id } = useParams();
@@ -108,18 +108,15 @@ export function PatientDocuments() {
                       <FaEye style={{cursor: 'pointer'}} title="Visualizar" />
                       
                       <a 
-                        href={`${API_BASE_URL}${doc.filePath}`} 
+                        href={`${API_BASE_URL}/documentos/${doc.id}/download`} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        download
-                        title="Baixar"
                         className="text-secondary d-flex align-items-center"
                         style={{ textDecoration: 'none', color: 'inherit' }}
                       >
-                        <FaDownload />
+                        <FaDownload title="Baixar Arquivo" style={{cursor: 'pointer'}} />
                       </a>
 
-                      {/* BOTÃO DE EXCLUIR */}
                       <FaTrash 
                         style={{cursor: 'pointer', color: '#d93025'}} 
                         title="Excluir"
@@ -135,7 +132,6 @@ export function PatientDocuments() {
         </Table>
       </div>
 
-      {/* --- MODAL DE CONFIRMAÇÃO DE EXCLUSÃO --- */}
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>Confirmar Exclusão</Modal.Title>

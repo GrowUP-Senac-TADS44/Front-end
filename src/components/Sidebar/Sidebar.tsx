@@ -1,21 +1,16 @@
-// src/components/sidebar/Sidebar.tsx
-
-import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom'; // Adicionado useNavigate
-import { MdDashboard, MdAccountCircle, MdLogout } from 'react-icons/md'; // Adicionado ícone MdLogout
+import { NavLink, useNavigate } from 'react-router-dom';
+import { MdDashboard, MdAccountCircle, MdLogout } from 'react-icons/md';
 import { FaUserFriends } from 'react-icons/fa';
-import { TbReport } from 'react-icons/tb';
+// TbReport removido pois não estava sendo usado
 
 import './Sidebar.css'; 
 
-export function Sidebar() {
+export function Sidebar() { // Removido : JSX.Element
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Aqui você pode limpar tokens de autenticação, localStorage, etc.
-    // Exemplo: localStorage.removeItem('userToken');
-    
-    // Redireciona para a tela de login
+    localStorage.removeItem('token');
+    localStorage.removeItem('medico');
     navigate('/');
   };
 
@@ -44,7 +39,6 @@ export function Sidebar() {
             <span>Pacientes</span>
           </NavLink>
         </li>
-
         <li>
           <NavLink 
             to="/conta"
@@ -56,7 +50,6 @@ export function Sidebar() {
         </li>
       </ul>
 
-      {/* Botão de Logout no final */}
       <div className="sp-sidebar-logout">
         <button onClick={handleLogout} className="sp-logout-btn">
           <MdLogout />
