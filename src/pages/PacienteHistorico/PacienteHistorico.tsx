@@ -107,7 +107,7 @@ export default function PatientHistory() {
     setShowEditModal(true);
   };
 
-  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleEditChange = (e: React.ChangeEvent<any>) => {
     setEditForm({ ...editForm, [e.target.name]: e.target.value });
   };
 

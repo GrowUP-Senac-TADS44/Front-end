@@ -8,6 +8,9 @@ export interface Paciente {
   Telefone: string | null;
   Email: string | null;
   Endereco: string | null;
+  EstadoCivil?: string | null;
+  NomeContatoEmergencia?: string | null;
+  TelefoneContatoEmergencia?: string | null;
 }
 
 export interface Evolucao {

@@ -8,7 +8,7 @@ import { TbReport } from 'react-icons/tb';
 
 import './Sidebar.css'; 
 
-export function Sidebar(): JSX.Element {
+export function Sidebar() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
