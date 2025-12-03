@@ -17,26 +17,47 @@ export function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(''); // Limpa erros anteriores
+    setError(''); 
     setLoading(true);
 
     try {
-      // 2. Chamada real ao backend
       await authService.login(email, senha);
-      
-      // Se deu certo, vai para a próxima tela
-      navigate("/dashboard");
+      navigate("/pacientes"); // Vai para a lista de pacientes
     } catch (err: any) {
-      // Se der erro, mostra mensagem
-      const msg = err.response?.data?.error || 'Falha ao realizar login. Verifique suas credenciais.';
+      console.error("Erro completo:", err); // Para ver no F12
+
+      // --- BLINDAGEM CONTRA O ERRO #31 ---
+      let msg = 'Falha ao realizar login.';
+
+      if (err.response) {
+        // O servidor respondeu, mas com erro (404, 401, 500)
+        const errorData = err.response.data;
+        
+        if (typeof errorData === 'string') {
+            // Se o servidor mandou HTML (ex: "Cannot POST..."), usa isso
+            msg = errorData;
+        } else if (errorData?.error) {
+            // Se mandou JSON { error: ... }
+            if (typeof errorData.error === 'string') {
+                msg = errorData.error;
+            } else {
+                // Se o 'error' for um objeto, converte para texto para não quebrar
+                msg = JSON.stringify(errorData.error);
+            }
+        }
+      } else if (err.message) {
+        // Erro de conexão (sem internet, servidor fora)
+        msg = err.message;
+      }
+
       setError(msg);
     } finally {
       setLoading(false);
     }
   };
-
+  
   return (
     <Container fluid className="vh-100 d-flex align-items-center justify-content-center">
       <Row>
