@@ -27,7 +27,7 @@ export function Login() {
       await authService.login(email, senha);
       
       // Se deu certo, vai para a próxima tela
-      navigate("/pacientes");
+      navigate("/dashboard");
     } catch (err: any) {
       // Se der erro, mostra mensagem
       const msg = err.response?.data?.error || 'Falha ao realizar login. Verifique suas credenciais.';
