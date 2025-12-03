@@ -24,7 +24,7 @@ const handleLogin = async (e: React.FormEvent) => {
 
     try {
       await authService.login(email, senha);
-      navigate("/pacientes"); // Vai para a lista de pacientes
+      navigate("/dashboard"); // Vai para a lista de pacientes
     } catch (err: any) {
       console.error("Erro completo:", err); // Para ver no F12
 
@@ -57,7 +57,7 @@ const handleLogin = async (e: React.FormEvent) => {
       setLoading(false);
     }
   };
-  
+
   return (
     <Container fluid className="vh-100 d-flex align-items-center justify-content-center">
       <Row>
